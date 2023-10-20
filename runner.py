@@ -32,7 +32,7 @@ class RunnerBase:
         print("test ",self.sqlIP,self.sqlPort,self.dbName,self.tableName)
     
     #ending the communication with the sql
-    def __endCommunication(self)
+    def __endCommunication(self):
         print("Stopping ",self.tableName)
 
     #This is the method that gets started by the supervisor

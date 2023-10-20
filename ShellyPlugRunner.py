@@ -1,5 +1,5 @@
 
-form runner import RunnerBase
+from runner import RunnerBase
 
 class Runner(RunnerBase):
 

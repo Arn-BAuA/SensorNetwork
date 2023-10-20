@@ -2,6 +2,7 @@
 
 import json
 import sys
+from datetime import datetime
 
 ######################################
 # Reading Config, Starting Runners   #
@@ -21,9 +22,10 @@ with open(configPath,'r') as configFile:
 logFile = open(config["General"]["LogFile"],"a")
 
 def log(text,endSequence="\n"):
-    logFile.write(text+endSequence)
+    logFile.write(str(datetime.now())+": "+text+endSequence)
 
 #Starting Runners
+log("Supervisor Started.")
 
 from ShellyPlugRunner import Runner as ShellyPlugRunner
 from AirQRunner import Runner as AirQRunner
@@ -40,19 +42,19 @@ activeThreads = []
 
 for RunnerName in RunnerLookUp:
     if RunnerName in config:
-        RunnerConstructor = RunnerLookUp(RunnerName)
+        RunnerConstructor = RunnerLookUp[RunnerName]
         
-        for instanceName in config[RunnerName]
+        for instanceName in config[RunnerName]:
             runner = RunnerConstructor(
                                        config["General"]["SQLAddress"], 
                                        config["General"]["SQLPort"], 
                                        config["General"]["SQLDBName"], 
                                        instanceName, #name of sql table
-                                       config[RunnerName][instanceName])
+                                       **config[RunnerName][instanceName])
 
             runner.start()
             activeRunners.append(runner)
-            log("Runner \""+instanceName"\" started.")
+            log("Runner \""+instanceName+"\" started.")
 
 
 ######################################
