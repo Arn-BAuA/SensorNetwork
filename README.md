@@ -14,7 +14,7 @@ Runners inheret from the global runner class, that contains coder to unify the w
 
 The config.json has multiple areals. One is the general field. General information on the sensor net, like address, port and database name of the database are contained here.
 Per kind of runner that is used, a nother area has to be defined. The name of this area is runner specific. e.g. AirQ for the airQ-runners.
-In this areal are different subsections. One per runner. The all contain the information that is needet for the SQL-Storage (name of the table to store data in). The field is named "Table Name". They also must contain a field named "RescouceInfo" That contains data source specific info that is needet to access the rescouce. In the case of the shelly plug these infos are the name of the shelly plug to identify the MQTT topic.
+In this areal are different subsections. One per runner. The name of the runner section is the name of the table that will be used to store data from that runner. If there is an areal named AirQ1 in the AirQ areal, there will be an AirQ1 table in teh db. Further, the field must contain the information that is needet to access the rescouce. In the case of the shelly plug these infos are the name of the shelly plug to identify the MQTT topic.
 The handling of these informations is automatically done by the runner.py parent class. The child classes just have to implement specific parts and get specific informations passed directly.
 
 ## Running the Sensor Network
