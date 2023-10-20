@@ -10,6 +10,12 @@ class RunnerBase:
     #This gets called by start() and has to be overwritten.
     def _on_Execution(self):
         pass
+    
+    def __initializeDB(self):
+        pass
+
+    def __initializeTable(self):
+        pass
 
     #This is the method that gets started by the supervisor
     #Communication is initailized here, necessairy dbs and tables are created.
