@@ -5,7 +5,8 @@
 	"SQLDBName":"SensorNetwork1",
 	"MQTTinUse":true,
 	"MQTT_IP":"192.168.0.101",
-	"MQTT_Port":1883
+	"MQTT_Port":1883,
+	"LogFile":"SensorNetwork.log"
 },
 "AirQs":{
 	"AirQ1":{
@@ -13,7 +14,7 @@
 		"PW":"password here"	
 	}
 },
-"ShellyPlug":{
+"ShellyPlugs":{
 	"ShellyPlug1":{
 		"PlugName":"Shelly ID here",
 		"IsShellyPlugS":false
