@@ -5,24 +5,50 @@ import threading
 class RunnerBase:
 
     def __init__(self,sqlIP,sqlPort,dbName,tableName):
-        pass
+        self.sqlIP = sqlIP
+        self.sqlPort = sqlPort
+        self.dbName = dbName
+        self.tableName = tableName
+
+        #is used to stop thread
+        self.recivedHaltSignal=False
     
     #This gets called by start() and has to be overwritten.
+    #It is assumend, that this contains a loop that runs until
+    # recivedHaltSignal is True.
     def _on_Execution(self):
         pass
     
+    #Checks if DB is present and if not, creates it.
     def __initializeDB(self):
         pass
 
+    #Checks if table is present and if not, creates it.
     def __initializeTable(self):
         pass
+    
+    #starting to talk to sql db
+    def __initializeCommunication(self):
+        print("test ",self.sqlIP,self.sqlPort,self.dbName,self.tableName)
+    
+    #ending the communication with the sql
+    def __endCommunication(self)
+        print("Stopping ",self.tableName)
 
     #This is the method that gets started by the supervisor
     #Communication is initailized here, necessairy dbs and tables are created.
     #The tread for the runner is created here.
     def start(self):
-        pass
+        
+        def threadJob():
+            self.__initializeCommunication()
+            self._on_Execution()
+            self.__endCommunication()
+        
+        self.thread=threading.Thread(target=threadJob)
+        self.thread.start()
 
     def stop(self):
-        pass
+        self.recivedHaltSignal = True
+        self.thread.join()
 
