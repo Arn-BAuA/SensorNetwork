@@ -3,6 +3,8 @@
 	"SQLAddress":"192.168.0.101",
 	"SQLPort":"3306",
 	"SQLDBName":"SensorNetwork1",
+	"SQLUser":"user",
+	"SQLPWD":"passwd",
 	"MQTTinUse":true,
 	"MQTT_IP":"192.168.0.101",
 	"MQTT_Port":1883,

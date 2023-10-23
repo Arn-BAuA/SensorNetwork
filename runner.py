@@ -7,8 +7,11 @@ class RunnerBase:
     def __init__(self,generalInfo,name,logMethod):
         self.sqlIP = generalInfo["SQLAddress"]
         self.sqlPort = generalInfo["SQLPort"]
+        self.sqlUser = generalInfo["SQLUser"]
+        self.sqlPasswd = generalInfo["SQLPassword"]
+
         self.dbName = generalInfo["SQLDBName"]
-                                       
+
         self.name = name
 
         self.log = logMethod
@@ -22,21 +25,45 @@ class RunnerBase:
     def _on_Execution(self):
         pass
     
-    #Checks if DB is present and if not, creates it.
-    def __initializeDB(self):
+    #The columns for the table that should contain the data are
+    #returned here, as dict. (Table name and value)
+    #This needs to be overwritten, as it is called at the
+    #initialisation of the communication.
+    def _getTableColumns(self):
         pass
 
-    #Checks if table is present and if not, creates it.
-    def __initializeTable(self):
-        pass
-    
     #starting to talk to sql db
     def __initializeCommunication(self):
-        pass
-    
+        #Start Connertion to DB
+        
+        try:
+            self.connction = mariadb.connect(user = self.sqlUser,
+                                             password = self.sqlPasswd,
+                                             host = self.sqlIP,
+                                             port = self.sqlPort,
+                                             database = self.dbName)
+            self.cursor = self.connection.cursor()
+        except(e):
+            self.log("Runner \""+self.name+"\" Failed to connecto to DB:\n"+e)
+
+        #Create Table If not there.
+        
+        createQuery = "CREATE TABLE IF NOT EXISTS "+self.name+" ("
+        
+        tableColumns = self.getTableColumns()
+        for columnName in tableColumns:
+            createQuery += " "+columnName+" "+tableColumns[columnName]+","
+        createQuery = createQuery[:-1] #removing last ','
+
+        createQuery +=");"
+
+        self.cursor.execute(createQuery)
+        
+
     #ending the communication with the sql
     def __endCommunication(self):
-        pass
+        self.cursor.close()
+        self.connection.close()
 
     #This is the method that gets started by the supervisor
     #Communication is initailized here, necessairy dbs and tables are created.
