@@ -1,7 +1,7 @@
 # Sensor Network SQL Allocator
 
 This is a program that is ment to run a sensor network with the following(ish) topology:
-TODO: Make Picture.
+![](.figures/NetworkOverview.png)
 
 ## Intorduction
 The idea here is relatively simple. The program at hand is ment to be run on the server in a sensor network to cover gather the information that is available in diffrent spots in the network and save them in the SQL database. The program consists of one supervisor script (Supervisor.py). The supervisor takes one flag, that should contain a path that points to the SensorNetworkConfig.json file, that has the informations on the sensor network that should be ran (where are which rescources).<br>
@@ -17,9 +17,12 @@ Per kind of runner that is used, a nother area has to be defined. The name of th
 In this areal are different subsections. One per runner. The name of the runner section is the name of the table that will be used to store data from that runner. If there is an areal named AirQ1 in the AirQ areal, there will be an AirQ1 table in teh db. Further, the field must contain the information that is needet to access the rescouce. In the case of the shelly plug these infos are the name of the shelly plug to identify the MQTT topic.
 The handling of these informations is automatically done by the runner.py parent class. The child classes just have to implement specific parts and get specific informations passed directly.
 
+
 ## Running the Sensor Network
 
 ## Different Runner instances
+
+![](.figures/RunnerPolymorphism.png)
 
 ### AirQ Runner
 
