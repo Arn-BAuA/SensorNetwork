@@ -45,16 +45,13 @@ for RunnerName in RunnerLookUp:
         RunnerConstructor = RunnerLookUp[RunnerName]
         
         for instanceName in config[RunnerName]:
-            runner = RunnerConstructor(
-                                       config["General"]["SQLAddress"], 
-                                       config["General"]["SQLPort"], 
-                                       config["General"]["SQLDBName"], 
-                                       instanceName, #name of sql table
+            runner = RunnerConstructor(config["General"], 
+                                       instanceName, #name of runner and sql table
+                                       log, #logger as lambda
                                        **config[RunnerName][instanceName])
 
             runner.start()
             activeRunners.append(runner)
-            log("Runner \""+instanceName+"\" started.")
 
 
 ######################################
@@ -66,6 +63,6 @@ def stopRunnerThreads():
     for runner in activeRunners:
         runner.stop()
     
-    log("Stopped all Runners.")
+    log("Stopped Supervisor Process.")
 
 atexit.register(stopRunnerThreads)

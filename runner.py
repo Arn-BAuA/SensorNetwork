@@ -4,12 +4,15 @@ import threading
 #base class of all runners.
 class RunnerBase:
 
-    def __init__(self,sqlIP,sqlPort,dbName,tableName):
-        self.sqlIP = sqlIP
-        self.sqlPort = sqlPort
-        self.dbName = dbName
-        self.tableName = tableName
+    def __init__(self,generalInfo,name,logMethod):
+        self.sqlIP = generalInfo["SQLAddress"]
+        self.sqlPort = generalInfo["SQLPort"]
+        self.dbName = generalInfo["SQLDBName"]
+                                       
+        self.name = name
 
+        self.log = logMethod
+        
         #is used to stop thread
         self.recivedHaltSignal=False
     
@@ -29,11 +32,11 @@ class RunnerBase:
     
     #starting to talk to sql db
     def __initializeCommunication(self):
-        print("test ",self.sqlIP,self.sqlPort,self.dbName,self.tableName)
+        pass
     
     #ending the communication with the sql
     def __endCommunication(self):
-        print("Stopping ",self.tableName)
+        pass
 
     #This is the method that gets started by the supervisor
     #Communication is initailized here, necessairy dbs and tables are created.
@@ -47,8 +50,10 @@ class RunnerBase:
         
         self.thread=threading.Thread(target=threadJob)
         self.thread.start()
+        self.log("Runner \""+self.name+"\" Started")
 
     def stop(self):
         self.recivedHaltSignal = True
         self.thread.join()
+        self.log("Runner \""+self.name+"\" Stopped")
 
