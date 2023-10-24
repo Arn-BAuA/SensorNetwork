@@ -1,4 +1,4 @@
-# Sensor Network SQL Allocator
+![](.figures/Banner.png)
 
 This is a program that is ment to run a sensor network with the following(ish) topology:
 ![](.figures/NetworkOverview.png)
