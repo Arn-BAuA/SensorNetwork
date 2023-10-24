@@ -62,7 +62,8 @@ import atexit
 def stopRunnerThreads():
     for runner in activeRunners:
         runner.stop()
-    
+       
     log("Stopped Supervisor Process.")
+    logFile.close()
 
 atexit.register(stopRunnerThreads)

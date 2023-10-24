@@ -1,7 +1,7 @@
 
 import paho.mqtt.client as mqtt
 import time
-
+from runner import RunnerBase
 
 #THis is the MQTT Runner. The way this works is that the runner implements the 
 # client interface from the paho mqtt library.
@@ -16,26 +16,26 @@ class Runner(RunnerBase):
         
         self.topics = topics
         self.MQTTIP = generalInfo["MQTT_IP"]
-        self.MQTTPort = generalInfo["MQTT_Port"]
+        self.MQTTPort = int(generalInfo["MQTT_Port"])
 
     #Has to be overwritten.
-    def _on_message(client,userdata,message):
+    def _on_message(self,client,userdata,message):
         pass
 
     def _on_Execution(self):
         
-        self.client = client()
+        self.client = mqtt.Client()
         self.client.on_message = self._on_message
 
-        try
+        try:
             self.client.connect(self.MQTTIP,self.MQTTPort,60)
-        except(e):
-            self.log("Error in Runner \""+self.name+"\". "+e)
+        except Exception as e:
+            self.log("Error in Runner \""+self.name+"\". "+str(e))
 
-        self.client.loopstart()
+        self.client.loop_start()
 
         for topic in self.topics:
-            client.subscribe(topic,2)
+            self.client.subscribe(topic,2)
 
         while not self.recivedHaltSignal:
-            sleep(1)
+            time.sleep(1)

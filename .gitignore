@@ -1,3 +1,4 @@
 *.log
 ActualConfig.json
 deploy.sh
+test.json

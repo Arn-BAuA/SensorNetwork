@@ -7,10 +7,11 @@ class RunnerBase:
 
     def __init__(self,generalInfo,name,logMethod):
         self.sqlIP = generalInfo["SQLAddress"]
-        self.sqlPort = generalInfo["SQLPort"]
+        self.sqlPort = int(generalInfo["SQLPort"])
         self.sqlUser = generalInfo["SQLUser"]
         self.sqlPasswd = generalInfo["SQLPassword"]
 
+        print(self.sqlUser)
         self.dbName = generalInfo["SQLDBName"]
 
         self.name = name
@@ -38,20 +39,21 @@ class RunnerBase:
         #Start Connertion to DB
         
         try:
-            self.connction = mariadb.connect(user = self.sqlUser,
+            self.connection = mariadb.connect(user = self.sqlUser,
                                              password = self.sqlPasswd,
                                              host = self.sqlIP,
                                              port = self.sqlPort,
                                              database = self.dbName)
             self.cursor = self.connection.cursor()
-        except(e):
-            self.log("Runner \""+self.name+"\" Failed to connecto to DB:\n"+e)
+        except Exception as e:
+            print(e)
+            self.log("Runner \""+self.name+"\" Failed to connecto to DB:\n"+str(e))
 
         #Create Table If not there.
         
         createQuery = "CREATE TABLE IF NOT EXISTS "+self.name+" ("
         
-        tableColumns = self.getTableColumns()
+        tableColumns = self._getTableColumns()
         for columnName in tableColumns:
             createQuery += " "+columnName+" "+tableColumns[columnName]+","
         createQuery = createQuery[:-1] #removing last ','
