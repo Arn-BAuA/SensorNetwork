@@ -29,3 +29,38 @@ The handling of these informations is automatically done by the runner.py parent
 ### Shelly Plug Runner
 
 ## Setting up the Network.
+
+This section contains a step by step guide to setup an instance of the sensornetwork containing one server and one or more AirQ Sciences and one or more Shelly-Plugs.
+In this network, the server is running an mqtt server and a MariaDB instance. Both are configured to be accessible from all locations. Restrictions are coordinated by the firewall on the server,
+which, in this guide is configured using ufw.<br>
+In this configuration, IP-Addresses are assigned statically by the router.
+In this Example, we use a raspberry pi 400 as server.
+The guide contains the following sections:
+
+* Step 1: Configuration of the Router
+* Step 2: Installing an OS on the server
+* Step 3: Installing and configuring ufw
+* Step 4: Installing and testing MariaDB
+* Step 5: Installing and testing MQTT
+* Step 6: Integration and Configuration of the Shelly Plugs
+* Step 7: Integration and Configuration of the Air Q Science.
+* Step 8: Deploying the code in this repo.
+* Step 9 (Optional): Installing a graphic DB-Browser
+
+### Step 1: Configuration of the Router
+
+### Step 2: Installing an OS on the server
+
+### Step 3: Installing and configuring ufw
+
+### Step 4: Installing and testing MariaDB
+
+### Step 5: Installing and testing MQTT
+
+### Step 6: Integration and Configuration of the Shelly Plugs
+
+### Step 7: Integration and Configuration of the Air Q Science.
+
+### Step 8: Deploying the code in this repo.
+
+### Step 9 (Optional): Installing a graphic DB-Browser
