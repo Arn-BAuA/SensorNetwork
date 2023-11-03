@@ -21,8 +21,6 @@ class Runner(RunnerBase):
             self.measurementFrequency = 10
     
     def requestMessage(self):
-        self.AirQIP = "192.168.0.103"
-        self.AirQPass = "MCL8AJNWMP9DcDX7SsziMeT5"
 
         def unpad(data):
             return data[:-ord(data[-1])]
@@ -139,7 +137,6 @@ class Runner(RunnerBase):
             columns = columns[:-2] #removing the last ' ,'
 
             insertQuery = "INSERT INTO "+self.name+" ("+columns+") VALUES ("+values+");"
-            print(insertQuery)
             self.cursor.execute(insertQuery)
             self.connection.commit()
 

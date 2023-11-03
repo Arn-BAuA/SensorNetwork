@@ -34,7 +34,6 @@ class Runner(MQTTRunner):
         insertQuery = "INSERT INTO "+self.name+" VALUES ("
         insertQuery +="NOW(), "
         
-        print(self.onlineMessage)
         if self.onlineMessage == "on":
             insertQuery +="TRUE, "
         else:
@@ -42,8 +41,6 @@ class Runner(MQTTRunner):
 
         insertQuery +=self.powerMessage
         insertQuery +=");"
-            
-        print(insertQuery)
 
         self.cursor.execute(insertQuery)
         self.connection.commit()
