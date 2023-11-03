@@ -15,7 +15,10 @@ class Runner(RunnerBase):
 
         self.AirQIP = config["IP"]
         self.AirQPass = config["PW"]
-        self.MeasurementDelay = 1
+        if "MeasurementFreq." in config:
+            self.measurementFrequency = config["MeasurementFreq."]
+        else:
+            self.measurementFrequency = 10
     
     def requestMessage(self):
         self.AirQIP = "192.168.0.103"
@@ -112,7 +115,7 @@ class Runner(RunnerBase):
     def _on_Execution(self):
         while not self.recivedHaltSignal:
             
-            time.sleep(self.MeasurementDelay)
+            time.sleep(self.measurementFrequency)
             
             AirQData = self.requestMessage()
             
