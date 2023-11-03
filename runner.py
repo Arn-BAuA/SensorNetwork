@@ -10,8 +10,6 @@ class RunnerBase:
         self.sqlPort = int(generalInfo["SQLPort"])
         self.sqlUser = generalInfo["SQLUser"]
         self.sqlPasswd = generalInfo["SQLPassword"]
-
-        print(self.sqlUser)
         self.dbName = generalInfo["SQLDBName"]
 
         self.name = name
