@@ -1,13 +1,55 @@
 
 from runner import RunnerBase
 
+import time
+
+import base64
+import json
+from Crypto.Cipher import AES
+import http.client
+
 class Runner(RunnerBase):
 
     def __init__(self,generalInfo,name,logger,**config):
         RunnerBase.__init__(self,generalInfo,name,logger)
+        self.AirQIP = IP
+        self.AirQPass = PW
+        self.MeasurementDelay = 10
     
+    def requestMessage(self):
+        self.AirQIP = "192.168.0.103"
+        self.AirQPass = "MCL8AJNWMP9DcDX7SsziMeT5"
+
+        def unpad(data):
+            return data[:-ord(data[-1])]
+
+        def decodeMessage(msgb64):
+            msg=base64.b64decode(msgb64)
+            key = AirQPass.encode('utf-8')
+            if len(key)<32:
+                for i in range(32-len(key)):
+                    key += b'0'
+            elif len(key) > 32:
+                key = key[:32]
+
+            cipher= AES.new(key=key,mode=AES.MODE_CBC,IV=msg[:16])
+            return unpad(cipher.decrypt(msg[16:]).decode('utf-8'))
+
+        connection = http.client.HTTPConnection(AirQIP)
+        connection.request("GET","/data")
+        contents = connection.getresponse()
+        connection.close()
+
+        msg =  json.loads(contents.read())
+        msg['content'] = json.loads(decodeMessage(msg['content']))
+
+        return json.dumps(msg['content'])
+
+
+
     def _getTableColumns(self):
         columns = {
+                "time": "TIMESTAMP",
                 "tvoc":"INT",
                 "delta_tvoc":"INT",
                 "pm2_5": "INT",
@@ -43,7 +85,6 @@ class Runner(RunnerBase):
                 "delta_no2": "DOUBLE",
                 "cnt5": "INT",
                 "delta_cnt5": "INT",
-                "time": "TIMESTAMP",
                 "h2s": "DOUBLE",
                 "delta_h2s": "DOUBLE",
                 "TypPS": "DOUBLE",
@@ -67,4 +108,9 @@ class Runner(RunnerBase):
 
     def _on_Execution(self):
         while not self.recivedHaltSignal:
-            pass
+            
+            time.sleep(self.MeasurementDelay)
+            
+            AirQData = requestMessage()
+            
+

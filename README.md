@@ -47,9 +47,16 @@ The guide contains the following sections:
 * Step 8: Deploying the code in this repo.
 * Step 9 (Optional): Installing a graphic DB-Browser
 
+This guide is for the ver
+
 ### Step 1: Configuration of the Router
+We don't go into the details of configuring the router since the configuration depends on the installed firmware. We assume that there is a documetntation from the manifacturer of the router.
+For out Prototype we used a TP-Link WR841N Router.<br>
+We configured the router to provide a hidden wifi network.
+We also fixed the IP-Address for the computer, we use to administrate the network.
 
 ### Step 2: Installing an OS on the server
+For the server we used the headless version of raspbian.
 
 ### Step 3: Installing and configuring ufw
 

@@ -1,6 +1,5 @@
 
 from MQTTRunner import Runner as MQTTRunner
-from datetime import datetime
 
 class Runner(MQTTRunner):
 
@@ -10,10 +9,8 @@ class Runner(MQTTRunner):
                "shellies/shellyplug-"+config["PlugName"]+"/relay/0/power",#power consumption
                 ];
         
-        #Idea here, the Shelly reports both topics at more or less the same time.
-        #Both will be collected in this data structure.
-        #If all is clollected it will be reported at once.
-        self.recivedMessages = 0
+        self.onlineMessage = "NULL"
+        self.powerMessage = "NULL"
 
         MQTTRunner.__init__(self,generalInfo,name,logger,topics)
     
@@ -28,30 +25,25 @@ class Runner(MQTTRunner):
     def _on_message(self,client,userdata,message):
         
         if message.topic == self.topics[0]:
-            self.onlineMessage = message
+            self.onlineMessage = str(message.payload)[2:-1]
         if message.topic == self.topics[1]:
-            self.powerMessage = message
+            self.powerMessage =str(message.payload)[2:-1]
 
-        print(message.topic)
-        self.recivedMessages += 1
+
+        #blog in
+        insertQuery = "INSERT INTO "+self.name+" VALUES ("
+        insertQuery +="NOW(), "
         
-        if self.recivedMessages >= 2:
-            #blog in
-            insertQuery = "INSERT INTO "+self.name+" VALUES ("
-            #insertQuery +=datetime.now().strftime("%Y-%m-%d %H:%M:%S")+", "
-            insertQuery +="NOW(), "
-            
-            online =str(self.onlineMessage.payload)[2:-1]
-            if online == "on":
-                insertQuery +="TRUE, "
-            else:
-                insertQuery +="FALSE, "
+        print(self.onlineMessage)
+        if self.onlineMessage == "on":
+            insertQuery +="TRUE, "
+        else:
+            insertQuery +="FALSE, "
 
-            insertQuery +=str(self.powerMessage.payload)[2:-1]
-            insertQuery +=");"
+        insertQuery +=self.powerMessage
+        insertQuery +=");"
             
-            print(insertQuery)
+        print(insertQuery)
 
-            self.cursor.execute(insertQuery)
-            
-            self.recivedMessages = 0
+        self.cursor.execute(insertQuery)
+        self.connection.commit()
