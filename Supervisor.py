@@ -53,6 +53,36 @@ for RunnerName in RunnerLookUp:
             runner.start()
             activeRunners.append(runner)
 
+#In this section of the code, we check, id threads are still online.
+#If a thread has crashed, and the last crash of this thread has not occured in the last few minutes,
+#a new one will be started in this while loop. In any case, an entry in the logs will be written.
+
+timeThreshold = 300 # time in seconds that a thread has to run sucsessful to be restarted in the case of a crash.
+lastTimeStarted = [0]*len(activeRunners)
+startAgain = [True]*len(activeRunners)#initilized this way because immutable
+
+for i in range(0,len(lastTimeStarted)):
+    lastTimeStarted[i] = datetime.now()
+
+while(True):
+    time.sleep(10) #sleep for one minute
+    
+    for i,runner in activeRunners:
+        
+        if not runner.isAlive():
+            crashTime = datetime.now() #discovered crash time
+            aliveTime = crashTime-lastTimeStarted
+
+            if aliveTime.total_seconds() < timeThreshold:
+                #do not start new thread
+                startAgain[i] = False
+                log("Runner "+runner.getName()+" has crashed and won't be started again due to small time since last start ( ~"+str(aliveTime.total_seconds())+" s ).")
+
+            if startAgain[i]:
+                log("Crash of Runner "+runner.getName()+" detected. Attempting Restart.")
+                runner.start()
+                lastTimeStarted[i] = datetime.now()
+
 
 ######################################
 # Stopping process, stopping runners #

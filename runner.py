@@ -79,6 +79,12 @@ class RunnerBase:
         self.thread=threading.Thread(target=threadJob)
         self.thread.start()
         self.log("Runner \""+self.name+"\" Started")
+    
+    def isAlive(self):
+        return self.thread.is_alive()
+    
+    def getName(self):
+        return self.name()
 
     def stop(self):
         self.recivedHaltSignal = True
