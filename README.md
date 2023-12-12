@@ -58,11 +58,152 @@ We also fixed the IP-Address for the computer, we use to administrate the networ
 ### Step 2: Installing an OS on the server
 For the server we used the headless version of raspbian.
 
+Here is a bit of confusion around the internet on how to configure this system.
+In earlyer versions of raspbian you would have flased the system onto an sd-card and would have provided a file with the credentials of you network. Upon first boot,
+the pi would than log into the network and you could login remotely via ssh as default user.<br>
+This procedure changed. The network as well as the user for the ssh connection can be created with the rpimager tool by clicking on the "cog"-symbol before flasing.
+
+Now is a good time to update the system:
+After some time the machine should appear in the network. To establish an ssh connection use:
+
+<pre><code>
+ssh userName@ip.add.res.s
+</code></pre>
+
+On the machine 
+<pre><code>
+sudo apt-get update
+sudo apt-get upgrade
+</code></pre>
+can be run to update the machine. If not done already, this is also a good moment to allocate the current ip-address as fixed address for the server in the router configuration.
+
 ### Step 3: Installing and configuring ufw
+
+To controll the visibility and accessability of all services on the server, ufw will be installed.
+
+<pre><code>
+sudo apt-get install ufw
+</code></pre>
+
+In ufw, we go for a configuration, where every incomming connection is denied, instead of some connections that we explicitly allow.<br>
+To add a rule that denies every incomming connection run:
+
+<pre><code>
+sudo ufw default deny incoming
+</code></pre>
+
+The next command allows us to connect to the machine via ssh (IMPORTANT):
+
+<pre><code>
+sudo ufw allow ipOfYourMachine on any port 22
+</code></pre>
+
+Here, ipOfYourMachine is the machine you want to use for the administration.
+To allow a connection from Your machine to MariaDB (as soon as maria DB is installed) add the following rule:
+
+<pre><code>
+sudo ufw allow ipOfYourMachine on any port 3306
+</code></pre>
+
+(We use the default MariaDB port)
+The rule for MQTT is a bit diffrent. Since we operate on a closed hidden network, we don't want to explicitly allow every device in the network to use the MQTT broker provided by our server. We just allow all incomming connections from the sub mask of our network to use the mqtt-broker:
+
+<pre><code>
+sudo ufw allow Sub.Net.Mask.Of.Rooter.0/24 to any port 1883
+</code></pre>
+
+To double check, if the rules are correct (especially the one for ssh) You can run:
+
+<pre><code>
+sudo ufw status
+</code></pre>
+
+To enable the fire wall, once everything is correct, run:
+
+<pre><code>
+sudo ufw enable
+</code></pre>
 
 ### Step 4: Installing and testing MariaDB
 
+Install mariadb on the server:
+
+<pre><code>
+sudo apt-get install mariadb-server
+</code></pre>
+
+At the moment mariadb is configured to only be availabel on the loopback interface of the machine.
+To check, if the installation is working so far use:
+
+<pre><code>
+sudo mysql -u root
+</code></pre>
+
+to make the database accessible on the network, two things must be done: The database needs to be set up to be available on the local network, and a user with premissions to access the database from outside the local machine needs to be created.
+
+To open the db-server on the local net edit the following file:
+
+<pre><code>
+/etc/mysql/mariadb.conf.d/50-server.cnf
+</code></pre>
+
+That file contains a line that reads:
+
+<pre><code>
+bind-address = 127.0.0.1
+</code></pre>
+
+This ties the database to the loopback interface. We changed the line to 
+
+<pre><code>
+bind-address = 0.0.0.0
+</code></pre>
+
+effectively opening the database on all network interfaces available from all ip-addresses. A binding to a subnet mask would have been more elegant, but I could not figure out how to do it. <br>
+For changes in the config to take affect, You need to restart the mariaDB-server:
+
+<pre><code>
+systemctl restart mariadb.service
+</code></pre>
+
+To create a user that can access the database log in again with:
+
+<pre><code>
+sudo mysql -u root
+</code></pre>
+
+To create a user that can administrate all databases on the server use:
+
+<pre><code>
+CREATE USER name@ipOfYourMachine IDENTIFIED BY 'password';
+GRANT ALL ON *.* TO name@ipOfYourMachine WITH GRANT OPTION;
+</code></pre>
+
+To test this newly established user on the other machine, You first need to install the mariadb-client on that machine:
+
+<pre><code>
+sudo apt-get install mariadb-client
+</code></pre>
+
+to log on with that client use:
+
+<pre><code>
+mysql --host=ipAddressOfTheDBServer -u nameOfTheUser --port 3306 -p
+</code></pre>
+
+The -p flag at the end indicates, that we log in with a password.
+If everything worked out, you should see a mysql shell.
+
 ### Step 5: Installing and testing MQTT
+
+In our version of the network, we use eclipse mosquitto, which is an open source mqtt broker.
+To install the broker, log on to the server run:
+
+<pre><code>
+sudo apt-get install mosquitto mosquitto-clients
+</code></pre>
+
+The first package installs the broker, the second one installs some clients that can be used for testing the broker.
 
 ### Step 6: Integration and Configuration of the Shelly Plugs
 

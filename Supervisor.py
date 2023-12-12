@@ -53,6 +53,10 @@ for RunnerName in RunnerLookUp:
             runner.start()
             activeRunners.append(runner)
 
+#########################################
+# Supervision of Runners during Runtime #
+#########################################
+
 #In this section of the code, we check, id threads are still online.
 #If a thread has crashed, and the last crash of this thread has not occured in the last few minutes,
 #a new one will be started in this while loop. In any case, an entry in the logs will be written.
