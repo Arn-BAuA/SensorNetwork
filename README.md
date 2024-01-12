@@ -48,7 +48,19 @@ The guide contains the following sections:
 * Step 9: Final steps. Making the configuration reboot save.
 * Step 10 (Optional): Installing a graphic DB-Browser
 
-This guide is for the ver
+This guide is for the following program versions:
+
+| Software 	| Version 		|
+|----------	|---------		|
+| OS		| Raspbian (Linux 6.1.21-v8+ #1642 SMP PREEMPT Mon Apr  3 17:24:16 BST 2023 GNU/Linux) |
+| ufw		| 0.36			|
+| mariadb	| Ver 15.1 Distrib 10.5.21-MariaDB, for debian-linux-gnueabihf (armv7l) using  EditLine wrapper|
+| mosquitto 	| 2.0.11		|
+| python 	| 3.9.2			|
+| python pip 	| 20.3.4		|
+| pycryptodome	| 3.19.0		|
+| paho-mqtt	| 1.6.1			|
+| python mariadb| 1.0.11		|
 
 ### Step 1: Configuration of the Router
 We don't go into the details of configuring the router since the configuration depends on the installed firmware. We assume that there is a documetntation from the manifacturer of the router.
