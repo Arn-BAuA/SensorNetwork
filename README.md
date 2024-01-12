@@ -45,7 +45,8 @@ The guide contains the following sections:
 * Step 6: Integration and Configuration of the Shelly Plugs
 * Step 7: Integration and Configuration of the Air Q Science.
 * Step 8: Deploying the code in this repo.
-* Step 9 (Optional): Installing a graphic DB-Browser
+* Step 9: Final steps. Making the configuration reboot save.
+* Step 10 (Optional): Installing a graphic DB-Browser
 
 This guide is for the ver
 
@@ -179,6 +180,12 @@ CREATE USER name@ipOfYourMachine IDENTIFIED BY 'password';
 GRANT ALL ON *.* TO name@ipOfYourMachine WITH GRANT OPTION;
 </code></pre>
 
+You also need to create the database that is later used to store the data from the sensor network.
+<pre><code>
+CREATE DATABASE SensorNetwork1;
+</code></pre>
+
+
 To test this newly established user on the other machine, You first need to install the mariadb-client on that machine:
 
 <pre><code>
@@ -204,11 +211,168 @@ sudo apt-get install mosquitto mosquitto-clients
 </code></pre>
 
 The first package installs the broker, the second one installs some clients that can be used for testing the broker.
+The default configuration for Mosquitto is, that it listens and broadcasts on the loopback interface without restrictions for the clients.
+However, if we want to bind mosquitto to another networkinterface, we have to provide a policy to explicitly define the rights of the clients on that interface.<br>
+Again, since we are managing who has access to what with the firewall anyway, we wanna create a policy that lets every client use the mqtt broker without authentification.<br>
+To open the broker to the network, we edit the file
+<pre><code>
+/etc/mosquitto/mosquitto.conf
+</code></pre>
+and append the line
+
+<pre><code>
+Listener 1883
+</code></pre>
+. Now the broker is available on port 1883. In addition, to allow anyone on the network to access the broker, we edit 
+<pre><code>
+/etc/mosquitto/mosquitto.conf
+</code></pre>
+and include the line
+<pre><code>
+Allow\_anonymous true
+</code></pre>
+. For the new configurations to take affect, we need to restart the broker:
+<pre><code>
+systemctl restart mosquitto.service
+</code></pre>
+
+The configuration can be tested with the following two programms:
+<pre><code>
+mosquitto\_pub #can be used to post a message
+musquitto\_sub #can be used to subscribe to a topic
+</code></pre>
+
+Hint:
+
+If you want to find devices on the bus, wild cards are very handy. The # in mqtt lets you subscribe to all topics.
 
 ### Step 6: Integration and Configuration of the Shelly Plugs
 
+The shelly plugs have to be configured to broadcast their status via mqtt.
+To do so, plug in the shelly plug and wait, until the LED on the case turns green.
+You should see an open WLAN that is hosted by the plug. Connect to that network and open a browser to connect to the gateway address (xxx.xxx.xxx.0).
+In the networksetting of the webinterface enter the credentials of your wifi network to connect the shelly plug to the network.
+When the plug is connected to the network, connect to the webinterface again and go to 'internet & security\>advanced settings' and enable mqtt by entering the servers ip address and port:
+<pre><code>
+ip.of.ser.ver:port
+</code></pre>
+You can test, if the connection to MQTT is succsessfull by using the mosquitto\_sub command.
+Finally, navigate to 'settings\>device info' and note the device id. It will be important in the configuration of the code in this repository.
+Repeat this procedure for all shelly plugs.
+
 ### Step 7: Integration and Configuration of the Air Q Science.
+
+We configure the Air-Q stations to connect to the hidden network. The data will be sourced via the http connction.
+To configure the Air-Q, we use the option to configure via sd-card. When a json file named config.json is placed on the sd card, the Air Q automatically restarts and applies this configuration. Data on the sd-card is formated during this process. Our configuration file has following content:
+ 
+<pre><code>
+{
+ "devicename":"Name of the Air Q",
+ "airqpass":"A password for the Air Q here (is used for decryption)",
+ "RoomType":"office",
+ "cloudUpload":false,
+ "WiFissid":"Name of the hidden WIfi here",
+ "WiFipass":"Your Wifi Passwd here",
+ "WiFihidden":true,
+ "cloudUpload":false
+ }
+</code></pre>
+
+If everything goes well, the Air Q should appear in the network. This is one of the devices that should have a fixed ip address. Make sure to configure it in the router settings.
+Note the password and the ip of the Air Q it will be relevant for the configuration of the code in this repository.
 
 ### Step 8: Deploying the code in this repo.
 
-### Step 9 (Optional): Installing a graphic DB-Browser
+To get the code from this repo running on your server, you need to download it from github. You can either download it using another machine and transfer it with scp or you can clone it directly on the server using the git command, which needs to be installed on raspbian (sudo apt-get install git)
+
+<pre><code>
+git clone https://github.com/Arn-BAuA/SensorNetwork.git
+</code></pre>
+
+After the code is downloaded, we need to setup a virtual environment for the necessairy python libraries to live in. To install the libraries, we use pip.
+
+<pre><code>
+sudo apt-get install python3-venv #to create environments.
+sudo apt-get install python3-pip #pip for managing packages.
+</code></pre>
+
+Create a Virtual environment using:
+
+<pre><code>
+python -m venv path/to/venv/nameOfVenv
+</code></pre>
+
+Use the newly created virtual environment using:
+
+<pre><code>
+source path/to/venv/nameOfVenv/bin/activate
+</code></pre>
+
+All of the packages that will be installed now are staying in the venv, so the global environment of the os on the server stays clean.
+Install the following packages:
+
+<pre><code>
+pip install paho-mqtt 	 # lets python communicate with mqtt
+pip install mariadb 	 # lets python interface with MariaDB
+pip install pycryptodome # to encrypt the data from the Air Q
+</code></pre>
+
+Now all the nessecairy packages should be installed. We now need to create a configuration for the sensor network. You can either edit the supplied SensorNetworkConfig.json file directly or copy it to create your own version. Doesn't matter, the config file of interes has to be passed as a parameter anyway. In the config, add the credentials of the Air Qs and Shelly Plugs we noted earlyer along side the addresses of the mqtt and sql server:
+
+
+<pre><code>
+{
+"General":{
+	"SQLAddress":"192.168.0.101",
+	"SQLPort":"3306",
+	"SQLDBName":"SensorNetwork1",
+	"SQLUser":"user",
+	"SQLPassword":"passwd",
+	"MQTTinUse":true,
+	"MQTT_IP":"192.168.0.101",
+	"MQTT_Port":1883,
+	"LogFile":"SensorNetwork.log"
+},
+"AirQs":{
+	"AirQ1":{
+		"IP":"192.168.0.103",
+		"PW":"password here"	
+	}
+},
+"ShellyPlugs":{
+	"ShellyPlug1":{
+		"PlugName":"Shelly ID here",
+		"IsShellyPlugS":false
+	}
+}
+}
+</code></pre>
+
+You can choose the names of the Air Qs and Shellys here (in the example its AirQ1 and ShellyPlug1). The tables for the data from these sources in the database are named accordingly.
+Now everything should be ready to start the network. Do so using:
+
+<pre><code>
+python Supervisor.py YourConfig.json >> ../processOut.txt & disown
+</code></pre>
+
+If everything goes well, the name of the process that was created should be echoed. The processOut.txt file should remain empty. It is just there for the case that the process crashes, so the output is not lost, since we disowned the process. Disowning it means, that you can exit the shell without causing the process to stop.<br>
+To check, if everything is working, log in to mysql:
+
+<pre><code>
+mysql --host=ipAddressOfTheDBServer -u nameOfTheUser --port 3306 -p
+</code></pre>
+
+there, you can check the tables generated by the script. They should have the names, given in the json file, e.g. AirQ1 or ShellyPlug1 in the json example above.
+
+<pre><code>
+USE SensorNetwork1;
+SELECT * FROM ShellyPlug1;
+SELECT time,temperature,sound,co2,tvoc FROM AirQ1 ORDER BY time DESC LIMIT 20;
+</code></pre>
+
+If everything worked out, you should see entries that where created in the last seconds.
+
+### Step 9: Final Steps, making the configuration reboot save.
+
+### Step 10 (Optional): Installing a graphic DB-Browser
+
