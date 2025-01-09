@@ -3,6 +3,7 @@
 import json
 import sys
 from datetime import datetime
+import time
 
 ######################################
 # Reading Config, Starting Runners   #
@@ -69,9 +70,9 @@ for i in range(0,len(lastTimeStarted)):
     lastTimeStarted[i] = datetime.now()
 
 while(True):
-    time.sleep(10) #sleep for one minute
+    time.sleep(10) #sleep for 10 s
     
-    for i,runner in activeRunners:
+    for i,runner in enumerate(activeRunners):
         
         if not runner.isAlive():
             crashTime = datetime.now() #discovered crash time
