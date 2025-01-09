@@ -48,7 +48,7 @@ The guide contains the following sections:
 * Step 9: Final steps. Making the configuration reboot save.
 * Step 10 (Optional): Installing a graphic DB-Browser
 
-This guide is for the following program versions:
+This guide is created using the following program versions:
 
 | Software 	| Version 		|
 |----------	|---------		|
@@ -386,5 +386,40 @@ If everything worked out, you should see entries that where created in the last 
 
 ### Step 9: Final Steps, making the configuration reboot save.
 
+To make the System reboot save, all you have to do is create a cron job, that starts the supervisor at reboot.
+The following way of dooing this is not the cleanest way. Usually, you would create a shell profile that has everything the code needs to run (virtual environmens and stuff) in it. Then that profile would be selected to run the supervisor. However, we are taking a shortcut here.
+We created a script that manually loads venvs and starts the script:
+
+<pre><code>
+#!/bin/bash
+
+#Quick and dirty shellscript to start Logging.
+
+sleep 20 #Wait a bit to establish connections
+cd <absolute (!) path to where venv and supervisor are>
+source <yourVenv/bin/activate>
+cd <path to the supervisor/>
+python Supervisor.py Config.json >> ../processOut.txt
+</code></pre>
+
+Now we have to tell cron (the system process resposible for running something at a given time) to run our script:
+for this, we type:
+
+<pre><code>
+crontab -e
+</code></pre>
+
+to edit the cronfile. At the bottom of the file, we append the line:
+
+<pre><code>
+@reboot cd absolute/path/to/startscirpt.sh; ./startscript.sh 1>> logfileNormalOutput.txt 2>> logfileErrorOutput.txt
+</code></pre>
+
+Note that we told the command to save the error out and the standard out to two files. Cron normally tries to send output via Email. However, if this is not configured, the output just gets discarded. Since we don't configure the E-Mail stuff, we need to save our output somewhere else to be able to read exceptions and stuff.
+
+Your configuration should now be reboot save. 
+
 ### Step 10 (Optional): Installing a graphic DB-Browser
+
+
 

@@ -36,11 +36,24 @@ class Runner(RunnerBase):
 
             cipher= AES.new(key=key,mode=AES.MODE_CBC,IV=msg[:16])
             return unpad(cipher.decrypt(msg[16:]).decode('utf-8'))
+        
+        succsess = False
+        retryTimer = 50
 
-        connection = http.client.HTTPConnection(self.AirQIP)
-        connection.request("GET","/data")
-        contents = connection.getresponse()
-        connection.close()
+        while not succsess:
+            try:
+                connection = http.client.HTTPConnection(self.AirQIP)
+                connection.request("GET","/data")
+                contents = connection.getresponse()
+                connection.close()
+                succsess = True
+            except:
+                pass
+
+            if not succsess:
+                #If connection failed, the thing will just wait.
+                time.sleep(retryTimer)
+
 
         msg =  json.loads(contents.read())
         msg['content'] = json.loads(decodeMessage(msg['content']))
